@@ -45,10 +45,28 @@ function postBook() {
     coverUrl: coverForm.value,
     authors: authorsForm.value.split(',')
   }
-  axios.post('https://rocky-castle-97526.herokuapp.com/books', newBook)
+  axios.get('https://rocky-castle-97526.herokuapp.com/authors')
     .then(result => {
-      console.log(result.data);
-      makeCard(result.data);
+      if (newBook.authors) {
+        let sender = [];
+        newBook.authors.forEach(author => {
+          if (author === "") return;
+          let chooser = result.data.filter(x => {
+            return `${x.firstName} ${x.lastName}` === author;
+          })
+          if (chooser.length === 0) {
+            makeErr();
+          } else {
+            sender.push(chooser[0].id);
+          }
+          newBook.authors = sender;
+        })
+      }
+      axios.post('https://rocky-castle-97526.herokuapp.com/books', newBook)
+        .then(result => {
+          console.log(result.data);
+          makeCard(result.data);
+        })
     })
     .catch(err => {
       makeErr();
@@ -62,7 +80,7 @@ function makeDiv(cl) {
 }
 
 function makeCard(dat) {
-  setHere.appendChild(makeDiv('card')).appendChild(makeDiv('card-body')).innerText = `Posted: ${dat.title}, a ${dat.genre.toLowerCase()} book by ${dat.authors}.`
+  setHere.appendChild(makeDiv('card')).appendChild(makeDiv('card-body')).innerText = `Posted: ${dat.title}.`
 }
 
 function makeErr() {

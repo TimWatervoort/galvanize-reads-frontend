@@ -36,11 +36,16 @@ const setHere = document.querySelector('#setHere');
 
 // Set info for the book
 function bookTemplate(info) {
+  let authors = [];
+  info.authors.forEach(author => {
+    authors.push (`${author.firstName} ${author.lastName}`);
+  })
   let result = `<p><img class='mr-3' src=${info.coverUrl}></img>
   <span>
   Title: ${info.title}<br>
   Genre: ${info.genre}<br>
   Description: ${info.description}<br>
+  Authors: ${authors.join(', ')}
   </span>
   <p>
   `
@@ -140,13 +145,17 @@ function makeForm(input, id, data) {
 // Make an editable card
 function makeEditableCard(data) {
   console.log(data);
+  let authors = [];
+  data.authors.forEach(author => {
+    authors.push (`${author.firstName} ${author.lastName}`);
+  })
   bookCol.appendChild(makeForm('title', data.id, data.title));
   bookCol.appendChild(document.createElement('br'))
   bookCol.appendChild(makeForm('genre', data.id, data.genre));
   bookCol.appendChild(document.createElement('br'))
   bookCol.appendChild(makeForm('description', data.id, data.description));
   bookCol.appendChild(document.createElement('br'))
-  bookCol.appendChild(makeForm('authors', data.id, data.authors));
+  bookCol.appendChild(makeForm('authors', data.id, authors));
   bookCol.appendChild(document.createElement('br'))
   bookCol.appendChild(makeForm('coverUrl', data.id, data.coverUrl));
   bookCol.appendChild(document.createElement('br'))
