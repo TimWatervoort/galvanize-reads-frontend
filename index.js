@@ -24,7 +24,7 @@ document.addEventListener(`DOMContentLoaded`, () => {
       editAuthor(id);
     } else if (/subauthor/.test(event.target.id)) {
       let id = event.target.id.replace(/subauthor/, '');
-      submitEdits(id);
+      submitAuthorEdits(id);
     }
   })
 
@@ -49,9 +49,9 @@ function bookTemplate(info) {
 
 // Set info for the author
 function authorTemplate(info) {
-  let result = `<p><img src=${info.portraitUrl}></img>
+  let result = `<h3><img src=${info.portraitUrl}></img>
   <span class='ml-3'> ${info.firstName} ${info.lastName}
-  <p>
+  <h3>
   `
   return result;
 }
@@ -114,9 +114,9 @@ function populateAuthors(authors) {
 // Request to get authors
 function getAuthorContent() {
   axios.get('https://rocky-castle-97526.herokuapp.com/authors')
-  .then(result => {
-    populateAuthors(result.data);
-  });
+    .then(result => {
+      populateAuthors(result.data);
+    });
 }
 
 // Request to get books
@@ -131,9 +131,9 @@ function getBookContent() {
 function makeForm(input, id, data) {
   let form = document.createElement('input');
   form.setAttribute('type', 'text');
-  form.setAttribute('style', 'width: 300px;')
+  form.setAttribute('style', 'width: 300px; border-radius: 10px;');
   form.id = (`${input}Form`);
-  form.setAttribute('value', data)
+  form.setAttribute('value', data);
   return form;
 }
 
@@ -173,7 +173,7 @@ function submitEdits(id) {
   axios.put(`https://rocky-castle-97526.herokuapp.com/books/${id}`, info)
     .then(result => {
       console.log(result);
-      getAuthorContent();
+      document.location.reload();
     })
     .catch(err => {
       console.log(err);
@@ -185,8 +185,8 @@ function deleteBook(id) {
   axios.delete(`https://rocky-castle-97526.herokuapp.com/books/${id}`)
     .then(result => {
       console.log(result);
-      getBookContent();
-    })
+      document.location.reload();
+    });
 }
 
 // Delete an author
@@ -194,7 +194,7 @@ function deleteAuthor(id) {
   axios.delete(`https://rocky-castle-97526.herokuapp.com/authors/${id}`)
     .then(result => {
       console.log(result);
-      getAuthorContent();
+      document.location.reload();
     })
     .catch(err => {
       console.log(err);
@@ -204,8 +204,11 @@ function deleteAuthor(id) {
 // Make an editable author card
 function makeEditableAuthorCard(data) {
   authCol.appendChild(makeForm('firstName', data.id, data.firstName));
+  authCol.appendChild(document.createElement('br'))
   authCol.appendChild(makeForm('lastName', data.id, data.lastName));
+  authCol.appendChild(document.createElement('br'))
   authCol.appendChild(makeForm('portraitUrl', data.id, data.portraitUrl));
+  authCol.appendChild(document.createElement('br'))
   authCol.appendChild(makeButton('subauthor', data.id, 'SUBMIT'));
 }
 
@@ -220,13 +223,13 @@ function editAuthor(id) {
 // Submit author edits
 function submitAuthorEdits(id) {
   let info = {
-    firstName: firstNameForm.value,
-    lastName: lastNameForm.value,
-    coverUrl: coverUrlForm.value
+    firstName: document.querySelector('#firstNameForm').value,
+    lastName: document.querySelector('#lastNameForm').value,
+    portraitUrl: document.querySelector('#portraitUrlForm').value
   }
   axios.put(`https://rocky-castle-97526.herokuapp.com/authors/${id}`, info)
     .then(result => {
-      getAuthorContent();
+      document.location.reload();
     })
     .catch(err => {
       console.log(err);

@@ -1,11 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+
+
   const titleForm = document.querySelector('#titleForm');
   const genreForm = document.querySelector('#genreForm');
   const descriptionForm = document.querySelector('#descriptionForm');
   const coverForm = document.querySelector('#coverForm');
   const authorsForm = document.querySelector('#authorsForm');
   const submit = document.querySelector('#submit');
+  const dropdown = document.querySelector('select');
+
+  function makeOption(name) {
+    let option = document.createElement('option');
+    option.innerText = name;
+    return option;
+  }
+
+  function makeList() {
+    axios.get('https://rocky-castle-97526.herokuapp.com/authors').then(result => {
+      result.data.forEach(author => {
+        dropdown.appendChild(makeOption(`${author.firstName} ${author.lastName}`));
+      })
+    })
+  }
+
+  makeList();
+
+  dropdown.addEventListener('click', event => {
+    authorsForm.value += `${dropdown.value},`;
+  })
 
   submit.addEventListener('click', event => {
     event.preventDefault();
@@ -14,22 +37,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-function postBook () {
+function postBook() {
   let newBook = {
     title: titleForm.value,
     genre: genreForm.value,
     description: descriptionForm.value,
     coverUrl: coverForm.value,
-    authors: authorsForm.value
+    authors: authorsForm.value.split(',')
   }
   axios.post('https://rocky-castle-97526.herokuapp.com/books', newBook)
-  .then(result=> {
-    console.log(result.data);
-    makeCard(result.data);
-  })
-  .catch(err=>{
-    makeErr();
-  });
+    .then(result => {
+      console.log(result.data);
+      makeCard(result.data);
+    })
+    .catch(err => {
+      makeErr();
+    });
 }
 
 function makeDiv(cl) {
