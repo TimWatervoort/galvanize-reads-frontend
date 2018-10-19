@@ -33,12 +33,51 @@ document.addEventListener(`DOMContentLoaded`, () => {
 const authCol = document.querySelector('#authorsCollapse');
 const bookCol = document.querySelector('#booksCollapse');
 const setHere = document.querySelector('#setHere');
+const usernameInput = document.querySelector('#usernameInput');
+const passwordInput = document.querySelector('#passwordInput');
+const signInButton = document.querySelector('#signIn');
+const signUpButton = document.querySelector('#signUp');
+
+signInButton.addEventListener('click', signIn);
+signUpButton.addEventListener('click', signUp);
+
+// sign in
+function signIn (event) {
+  event.preventDefault();
+  let info =  {
+    username: usernameInput.value,
+    password: passwordInput.value
+  }
+  axios.post(`https://rocky-castle-97526.herokuapp.com/signin`, info)
+  .then (result => {
+    console.log(result);
+  })
+  .catch(err => {
+    console.log(err);
+  });
+}
+
+// sign up
+function signUp () {
+  event.preventDefault();
+  let info =  {
+    username: usernameInput.value,
+    password: passwordInput.value
+  }
+  axios.post(`https://rocky-castle-97526.herokuapp.com/signup`, info)
+  .then (result => {
+    console.log(result);
+  })
+  .catch (err => {
+    console.log(err);
+  });
+}
 
 // Set info for the book
 function bookTemplate(info) {
   let authors = [];
   info.authors.forEach(author => {
-    authors.push (`${author.firstName} ${author.lastName}`);
+    authors.push(`${author.firstName} ${author.lastName}`);
   })
   let result = `<p><img class='mr-3' src=${info.coverUrl}></img>
   <span>
@@ -147,7 +186,7 @@ function makeEditableCard(data) {
   console.log(data);
   let authors = [];
   data.authors.forEach(author => {
-    authors.push (`${author.firstName} ${author.lastName}`);
+    authors.push(`${author.firstName} ${author.lastName}`);
   })
   bookCol.appendChild(makeForm('title', data.id, data.title));
   bookCol.appendChild(document.createElement('br'))
@@ -177,12 +216,31 @@ function submitEdits(id) {
     genre: document.querySelector('#genreForm').value,
     description: document.querySelector('#descriptionForm').value,
     coverUrl: document.querySelector('#coverUrlForm').value,
-    authors: document.querySelector('#authorsForm').value
+    authors: document.querySelector('#authorsForm').value.split(',')
   }
-  axios.put(`https://rocky-castle-97526.herokuapp.com/books/${id}`, info)
+  axios.get('https://rocky-castle-97526.herokuapp.com/authors')
     .then(result => {
-      console.log(result);
-      document.location.reload();
+      if (info.authors) {
+        let sender = [];
+        info.authors.forEach(author => {
+          if (author === "") return;
+          let chooser = result.data.filter(x => {
+            return `${x.firstName} ${x.lastName}` === author;
+          })
+          if (chooser.length === 0) {
+            makeErr();
+          } else {
+            sender.push(chooser[0].id);
+          }
+          info.authors = sender;
+          console.log(sender);
+        })
+      }
+      axios.put(`https://rocky-castle-97526.herokuapp.com/books/${id}`, info)
+        .then(result => {
+          console.log(result);
+          document.location.reload();
+        })
     })
     .catch(err => {
       console.log(err);

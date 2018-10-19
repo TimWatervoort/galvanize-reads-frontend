@@ -55,7 +55,7 @@ function postBook() {
             return `${x.firstName} ${x.lastName}` === author;
           })
           if (chooser.length === 0) {
-            makeErr();
+            makeErr(`${author} does not exist in the database!`);
           } else {
             sender.push(chooser[0].id);
           }
@@ -80,11 +80,12 @@ function makeDiv(cl) {
 }
 
 function makeCard(dat) {
+  setHere.innerHTML = '';
   setHere.appendChild(makeDiv('card')).appendChild(makeDiv('card-body')).innerText = `Posted: ${dat.title}.`
 }
 
-function makeErr() {
+function makeErr(msg = 'Post failed!') {
   setHere.innerHTML = '';
   setHere.classList.add('bg-danger')
-  setHere.appendChild(makeDiv('card')).appendChild(makeDiv('card-body')).innerText = 'Post failed!'
+  setHere.appendChild(makeDiv('card')).appendChild(makeDiv('card-body')).innerText = msg
 }

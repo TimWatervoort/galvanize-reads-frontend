@@ -2,7 +2,7 @@ body {
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 }
 
-button {
+#getAuthors, #getBooks {
   width: 200px;
   height: auto;
 }
