@@ -30,10 +30,10 @@
   </nav>
 
   <div class='container mt-3'>
-    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#booksCollapse">
+    <button id = 'getBooks' class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#booksCollapse">
     <i class="fas fa-book"></i> Books
   </button>
-    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#authorsCollapse">
+    <button id = 'getAuthors' class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#authorsCollapse">
   <i class="fas fa-pen"></i> Authors
   </button>
     <div class="collapse" id="booksCollapse">
@@ -41,6 +41,9 @@
     <div class="collapse" id="authorsCollapse">
     </div>
   </div>
+  <div class = 'container'>
+  <div id = 'setHere'></div>
+</div>
 
   <script src="index.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>

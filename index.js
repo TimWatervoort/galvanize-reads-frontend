@@ -1,27 +1,46 @@
 document.addEventListener(`DOMContentLoaded`, () => {
 
+  const getBooks = document.querySelector('#getBooks');
+  const getAuthors = document.querySelector('#getAuthors');
+
   getBookContent();
   getAuthorContent();
+
+  document.addEventListener('click', event => {
+    if (/edit/.test(event.target.id)) {
+      let id = event.target.id.replace(/edit/, '');
+      editBook(id);
+    } else if (/submit/.test(event.target.id)) {
+      let id = event.target.id.replace(/submit/, '');
+      submitEdits(id);
+    } else if (/delete/.test(event.target.id)) {
+      let id = event.target.id.replace(/delete/, '');
+      deleteBook(id);
+    } else if (/delauthor/.test(event.target.id)) {
+      let id = event.target.id.replace(/delauthor/, '');
+      deleteAuthor(id);
+    } else if (/edauthor/.test(event.target.id)) {
+      let id = event.target.id.replace(/edauthor/, '');
+      editAuthor(id);
+    } else if (/subauthor/.test(event.target.id)) {
+      let id = event.target.id.replace(/subauthor/, '');
+      submitEdits(id);
+    }
+  })
 
 });
 
 const authCol = document.querySelector('#authorsCollapse');
 const bookCol = document.querySelector('#booksCollapse');
+const setHere = document.querySelector('#setHere');
 
 // Set info for the book
-function bookTemplate (info) {
-  let result = `<p><img src=${info.coverUrl}></img>
-  <span class='ml-3'>
+function bookTemplate(info) {
+  let result = `<p><img class='mr-3' src=${info.coverUrl}></img>
+  <span>
   Title: ${info.title}<br>
-  </span>
-  <span class='ml-3'>
   Genre: ${info.genre}<br>
-  </span>
-  <span class='ml-3'>
   Description: ${info.description}<br>
-  </span>
-  <span class = 'ml-3'>
-  Authors: ${info.authors.join(', ')}
   </span>
   <p>
   `
@@ -43,7 +62,20 @@ function addBook(info) {
   cardbody.classList.add('card');
   cardbody.classList.add('card-body');
   cardbody.innerHTML = bookTemplate(info);
+  cardbody.appendChild(makeButton('edit', info.id));
+  cardbody.appendChild(makeButton('delete', info.id));
   return cardbody;
+}
+
+// Make edit and delete buttons
+function makeButton(type, id, content) {
+  let button = document.createElement('button');
+  button.classList.add('btn');
+  button.classList.add('btn-secondary');
+  button.classList.add('mb-2');
+  button.id = `${type}${id}`;
+  button.innerText = content || type.toUpperCase();
+  return button;
 }
 
 // Add an author to the dropdown
@@ -52,6 +84,8 @@ function addAuthor(info) {
   cardbody.classList.add('card');
   cardbody.classList.add('card-body');
   cardbody.innerHTML = authorTemplate(info);
+  cardbody.appendChild(makeButton('edauthor', info.id, 'EDIT'));
+  cardbody.appendChild(makeButton('delauthor', info.id, 'DELETE'));
   return cardbody;
 }
 
@@ -79,41 +113,122 @@ function populateAuthors(authors) {
 
 // Request to get authors
 function getAuthorContent() {
-  // axios.get('url/authors')
-  // .then(result => {
-  //   populateAuthors(data);
-  // });
-  let result = {
-    id: 1,
-    firstName: 'Daniel',
-    lastName: 'Youngandstrong',
-    portraitUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Abraham_Lincoln_O-77_matte_collodion_print.jpg/220px-Abraham_Lincoln_O-77_matte_collodion_print.jpg'
-  }
-  populateAuthors(result);
+  axios.get('https://rocky-castle-97526.herokuapp.com/authors')
+  .then(result => {
+    populateAuthors(result.data);
+  });
 }
 
 // Request to get books
 function getBookContent() {
-  // axios.get('url/books')
-  // .then(result => {
-  //   populateBooks(result.data);
-  // });
-  let result = [{
-      id: 1,
-      title: 'The Wonderful Book',
-      genre: 'Thriller',
-      coverUrl: 'https://ewedit.files.wordpress.com/2016/09/hpsorcstone.jpg?w=405',
-      description: 'This book is awful.',
-      authors: ['Abraham Lincoln', 'Daniel Youngandstrong']
-    },
-    {
-      id: 2,
-      title: 'Book the Book',
-      genre: 'Mystery',
-      coverUrl: 'https://ewedit.files.wordpress.com/2016/09/hpsorcstone.jpg?w=405',
-      description: 'This book is ok.',
-      authors: ['Abraham Lincoln']
-    }
-  ]
-  populateBooks(result);
+  axios.get('https://rocky-castle-97526.herokuapp.com/books')
+    .then(result => {
+      populateBooks(result.data);
+    });
+}
+
+// Make an edit form
+function makeForm(input, id, data) {
+  let form = document.createElement('input');
+  form.setAttribute('type', 'text');
+  form.setAttribute('style', 'width: 300px;')
+  form.id = (`${input}Form`);
+  form.setAttribute('value', data)
+  return form;
+}
+
+// Make an editable card
+function makeEditableCard(data) {
+  console.log(data);
+  bookCol.appendChild(makeForm('title', data.id, data.title));
+  bookCol.appendChild(document.createElement('br'))
+  bookCol.appendChild(makeForm('genre', data.id, data.genre));
+  bookCol.appendChild(document.createElement('br'))
+  bookCol.appendChild(makeForm('description', data.id, data.description));
+  bookCol.appendChild(document.createElement('br'))
+  bookCol.appendChild(makeForm('authors', data.id, data.authors));
+  bookCol.appendChild(document.createElement('br'))
+  bookCol.appendChild(makeForm('coverUrl', data.id, data.coverUrl));
+  bookCol.appendChild(document.createElement('br'))
+  bookCol.appendChild(makeButton('submit', data.id));
+}
+
+// Get needed info for book
+function editBook(id) {
+  bookCol.innerHTML = '';
+  axios.get(`https://rocky-castle-97526.herokuapp.com/books/${id}`).then(result => {
+    makeEditableCard(result.data);
+  });
+}
+
+// Submit the edits
+function submitEdits(id) {
+  let info = {
+    title: document.querySelector('#titleForm').value,
+    genre: document.querySelector('#genreForm').value,
+    description: document.querySelector('#descriptionForm').value,
+    coverUrl: document.querySelector('#coverUrlForm').value,
+    authors: document.querySelector('#authorsForm').value
+  }
+  axios.put(`https://rocky-castle-97526.herokuapp.com/books/${id}`, info)
+    .then(result => {
+      console.log(result);
+      getAuthorContent();
+    })
+    .catch(err => {
+      console.log(err);
+    })
+}
+
+// Delete a book
+function deleteBook(id) {
+  axios.delete(`https://rocky-castle-97526.herokuapp.com/books/${id}`)
+    .then(result => {
+      console.log(result);
+      getBookContent();
+    })
+}
+
+// Delete an author
+function deleteAuthor(id) {
+  axios.delete(`https://rocky-castle-97526.herokuapp.com/authors/${id}`)
+    .then(result => {
+      console.log(result);
+      getAuthorContent();
+    })
+    .catch(err => {
+      console.log(err);
+    })
+}
+
+// Make an editable author card
+function makeEditableAuthorCard(data) {
+  authCol.appendChild(makeForm('firstName', data.id, data.firstName));
+  authCol.appendChild(makeForm('lastName', data.id, data.lastName));
+  authCol.appendChild(makeForm('portraitUrl', data.id, data.portraitUrl));
+  authCol.appendChild(makeButton('subauthor', data.id, 'SUBMIT'));
+}
+
+// Get needed info for author
+function editAuthor(id) {
+  authCol.innerHTML = '';
+  axios.get(`https://rocky-castle-97526.herokuapp.com/authors/${id}`).then(result => {
+    makeEditableAuthorCard(result.data);
+  });
+}
+
+// Submit author edits
+function submitAuthorEdits(id) {
+  let info = {
+    firstName: firstNameForm.value,
+    lastName: lastNameForm.value,
+    coverUrl: coverUrlForm.value
+  }
+  axios.put(`https://rocky-castle-97526.herokuapp.com/authors/${id}`, info)
+    .then(result => {
+      getAuthorContent();
+    })
+    .catch(err => {
+      console.log(err);
+    })
 }

@@ -22,9 +22,10 @@ function postBook () {
     coverUrl: coverForm.value,
     authors: authorsForm.value
   }
-  axios.post('url/books', newBook)
+  axios.post('https://rocky-castle-97526.herokuapp.com/books', newBook)
   .then(result=> {
-    makeCard(result.data[0]);
+    console.log(result.data);
+    makeCard(result.data);
   })
   .catch(err=>{
     makeErr();

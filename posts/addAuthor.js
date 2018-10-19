@@ -18,11 +18,11 @@ function postAuthor () {
   let author = {
     firstName: firstName.value,
     lastName: lastName.value,
-    portrait_url: portrait.value
+    portraitUrl: document.querySelector('#portraitUrl').value
   }
-  axios.post('url/authors', author)
+  axios.post('https://rocky-castle-97526.herokuapp.com/authors', author)
   .then(result => {
-    makeCard(result.data[0]);
+    makeCard(result.data);
   })
   .catch(err => {
     console.log(err);
